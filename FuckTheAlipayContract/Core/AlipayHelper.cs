@@ -5,6 +5,7 @@ using System.Linq;
 using System.Net;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -93,31 +94,58 @@ namespace FuckTheAlipayContract.Core
             return islogin;
         }
 
+
         /// <summary>
         /// 根据交易号查询
         /// </summary>
-        /// <param name="no"></param>
-        public static bool Query(string no, out QueryResult result)
+        public static bool QueryNo(string no, out QueryResult result)
         {
-            result = new QueryResult();
+            result = LocalCache.Cache.QueryTradeNo(no);
+            if (result != null)
+                return true;
             GetCookies();
-            //判断是否登陆
             if (!IsLogin())
             {
                 result.Info = "没有登陆";
                 return false;
             }
-            var html = GetHtml(no);
+            var html = GetTradeNoHtml(no);
             if (string.IsNullOrEmpty(html))
             {
                 result.Info = "查询失败";
                 return false;
             }
             result = Format(html);
+            LocalCache.Cache.Add(result.TradeNo, result);
             return result.IsSuccess;
         }
 
-        private static string GetHtml(string no)
+        /// <summary>
+        /// 根据备注查询
+        /// </summary>
+        public static bool QueryInfo(string remark, out QueryResult result)
+        {
+            result = LocalCache.Cache.QueryRemark(remark);
+            if (result != null)
+                return true;
+            GetCookies();
+            if (!IsLogin())
+            {
+                result.Info = "没有登陆";
+                return false;
+            }
+            var html = GetTradeNoHtml(remark);
+            if (string.IsNullOrEmpty(html))
+            {
+                result.Info = "查询失败";
+                return false;
+            }
+            result = Format(html);
+            LocalCache.Cache.Add(result.TradeNo, result);
+            return result.IsSuccess;
+        }
+
+        private static string GetTradeNoHtml(string no)
         {
             var code = "";
             try
