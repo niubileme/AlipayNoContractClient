@@ -29,12 +29,12 @@
         private void InitializeComponent()
         {
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
-            this.groupBox1 = new System.Windows.Forms.GroupBox();
-            this.label1 = new System.Windows.Forms.Label();
-            this.textPwd = new System.Windows.Forms.TextBox();
-            this.txtNumber = new System.Windows.Forms.TextBox();
-            this.btnquery = new System.Windows.Forms.Button();
             this.richTextBox1 = new System.Windows.Forms.RichTextBox();
+            this.btnquery = new System.Windows.Forms.Button();
+            this.txtNumber = new System.Windows.Forms.TextBox();
+            this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.textPwd = new System.Windows.Forms.TextBox();
+            this.label1 = new System.Windows.Forms.Label();
             this.webBrowser1 = new System.Windows.Forms.WebBrowser();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
@@ -63,38 +63,13 @@
             this.splitContainer1.SplitterDistance = 731;
             this.splitContainer1.TabIndex = 0;
             // 
-            // groupBox1
+            // richTextBox1
             // 
-            this.groupBox1.Controls.Add(this.textPwd);
-            this.groupBox1.Controls.Add(this.label1);
-            this.groupBox1.Location = new System.Drawing.Point(60, 55);
-            this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(564, 231);
-            this.groupBox1.TabIndex = 0;
-            this.groupBox1.TabStop = false;
-            // 
-            // label1
-            // 
-            this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(26, 71);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(199, 21);
-            this.label1.TabIndex = 0;
-            this.label1.Text = "密码（自动登陆）：";
-            // 
-            // textPwd
-            // 
-            this.textPwd.Location = new System.Drawing.Point(231, 68);
-            this.textPwd.Name = "textPwd";
-            this.textPwd.Size = new System.Drawing.Size(261, 31);
-            this.textPwd.TabIndex = 1;
-            // 
-            // txtNumber
-            // 
-            this.txtNumber.Location = new System.Drawing.Point(60, 323);
-            this.txtNumber.Name = "txtNumber";
-            this.txtNumber.Size = new System.Drawing.Size(441, 31);
-            this.txtNumber.TabIndex = 1;
+            this.richTextBox1.Location = new System.Drawing.Point(60, 418);
+            this.richTextBox1.Name = "richTextBox1";
+            this.richTextBox1.Size = new System.Drawing.Size(577, 664);
+            this.richTextBox1.TabIndex = 3;
+            this.richTextBox1.Text = "";
             // 
             // btnquery
             // 
@@ -106,13 +81,38 @@
             this.btnquery.UseVisualStyleBackColor = true;
             this.btnquery.Click += new System.EventHandler(this.btnquery_Click);
             // 
-            // richTextBox1
+            // txtNumber
             // 
-            this.richTextBox1.Location = new System.Drawing.Point(60, 418);
-            this.richTextBox1.Name = "richTextBox1";
-            this.richTextBox1.Size = new System.Drawing.Size(577, 664);
-            this.richTextBox1.TabIndex = 3;
-            this.richTextBox1.Text = "";
+            this.txtNumber.Location = new System.Drawing.Point(60, 323);
+            this.txtNumber.Name = "txtNumber";
+            this.txtNumber.Size = new System.Drawing.Size(441, 31);
+            this.txtNumber.TabIndex = 1;
+            // 
+            // groupBox1
+            // 
+            this.groupBox1.Controls.Add(this.textPwd);
+            this.groupBox1.Controls.Add(this.label1);
+            this.groupBox1.Location = new System.Drawing.Point(60, 55);
+            this.groupBox1.Name = "groupBox1";
+            this.groupBox1.Size = new System.Drawing.Size(564, 231);
+            this.groupBox1.TabIndex = 0;
+            this.groupBox1.TabStop = false;
+            // 
+            // textPwd
+            // 
+            this.textPwd.Location = new System.Drawing.Point(231, 68);
+            this.textPwd.Name = "textPwd";
+            this.textPwd.Size = new System.Drawing.Size(261, 31);
+            this.textPwd.TabIndex = 1;
+            // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.Location = new System.Drawing.Point(26, 71);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(199, 21);
+            this.label1.TabIndex = 0;
+            this.label1.Text = "密码（自动登陆）：";
             // 
             // webBrowser1
             // 
@@ -131,7 +131,7 @@
             this.ClientSize = new System.Drawing.Size(1506, 1142);
             this.Controls.Add(this.splitContainer1);
             this.Name = "Form1";
-            this.Text = "Form1";
+            this.Text = "Fuck The Alipay Contract";
             this.Load += new System.EventHandler(this.Form1_Load);
             this.splitContainer1.Panel1.ResumeLayout(false);
             this.splitContainer1.Panel1.PerformLayout();

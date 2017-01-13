@@ -67,6 +67,7 @@
     <Compile Include="API\AlipayController.cs" />
     <Compile Include="Core\AlipayHelper.cs" />
     <Compile Include="Core\HttpHelper.cs" />
+    <Compile Include="Core\LocalCache.cs" />
     <Compile Include="Form1.cs">
       <SubType>Form</SubType>
     </Compile>

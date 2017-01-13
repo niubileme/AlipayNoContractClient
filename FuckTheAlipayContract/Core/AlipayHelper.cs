@@ -5,6 +5,7 @@ using System.Linq;
 using System.Net;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -96,8 +97,7 @@ namespace FuckTheAlipayContract.Core
         /// <summary>
         /// 根据交易号查询
         /// </summary>
-        /// <param name="no"></param>
-        public static bool Query(string no, out QueryResult result)
+        public static bool QueryNo(string no, out QueryResult result)
         {
             result = new QueryResult();
             GetCookies();
@@ -108,6 +108,29 @@ namespace FuckTheAlipayContract.Core
                 return false;
             }
             var html = GetHtml(no);
+            if (string.IsNullOrEmpty(html))
+            {
+                result.Info = "查询失败";
+                return false;
+            }
+            result = Format(html);
+            return result.IsSuccess;
+        }
+
+        /// <summary>
+        /// 根据交易号查询
+        /// </summary>
+        public static bool QueryInfo(string info, out QueryResult result)
+        {
+            result = new QueryResult();
+            GetCookies();
+            //判断是否登陆
+            if (!IsLogin())
+            {
+                result.Info = "没有登陆";
+                return false;
+            }
+            var html = GetHtml(info);
             if (string.IsNullOrEmpty(html))
             {
                 result.Info = "查询失败";

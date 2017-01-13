@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Web.Http;
 
@@ -12,17 +13,34 @@ namespace FuckTheAlipayContract.API
     public class AlipayController : ApiController
     {
         [HttpGet]
-        public QueryResult Query(string no)
+        public QueryResult QueryNo(string s)
         {
             var result = new QueryResult();
-            if (string.IsNullOrEmpty(no))
+            if (string.IsNullOrEmpty(s))
             {
                 result.IsSuccess = false;
                 result.Info = "交易号为空！";
                 return result;
             }
-            AlipayHelper.Query(no, out result);
+            AlipayHelper.QueryNo(s, out result);
             return result;
         }
+
+        [HttpGet]
+        public QueryResult QueryInfo(string s)
+        {
+            var result = new QueryResult();
+            if (string.IsNullOrEmpty(s))
+            {
+                result.IsSuccess = false;
+                result.Info = "交易号为空！";
+                return result;
+            }
+            AlipayHelper.QueryInfo(s, out result);
+            return result;
+        }
+
+       
+
     }
 }

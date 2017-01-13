@@ -45,7 +45,7 @@ namespace FuckTheAlipayContract
         {
             var config = new HttpSelfHostConfiguration("http://localhost:8999");
             config.Routes.MapHttpRoute(
-                "API Default", "api/{controller}/{action}/{no}",
+                "API Default", "api/{controller}/{action}/{s}",
                 new { id = RouteParameter.Optional });
             config.Formatters.Remove(config.Formatters.XmlFormatter);
             var server = new HttpSelfHostServer(config);
@@ -66,7 +66,7 @@ namespace FuckTheAlipayContract
                 return;
             }
             var result = new QueryResult();
-            if (AlipayHelper.Query(tradeno, out result))
+            if (AlipayHelper.QueryNo(tradeno, out result))
             {
                 var text = string.Format("{0}|{1}|{2}|{3}", result.TradeNo, result.Remark, result.Amount1, result.PaymentOn) + "\r\n";
                 richTextBox1.AppendText(text);
