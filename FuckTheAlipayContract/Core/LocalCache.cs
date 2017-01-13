@@ -79,6 +79,6 @@ namespace FuckTheAlipayContract.Core
             return innerData.TryRemove(key, out result);
         }
 
-       
+      
     }
 }
