@@ -23,14 +23,15 @@ namespace FuckTheAlipayContract
         public Form1()
         {
             InitializeComponent();
-            richTextBox1.AppendText("交易号|备注|金额|付款时间" + "\r\n");
-            AlipayHelper.Init(webBrowser1);
+            richTextBox1.AppendText("交易号|备注|实付金额|付款时间" + "\r\n");
+            AlipayHelper.Init(webBrowser1, Show);
             //开启后台线程 保持登陆
             Task.Factory.StartNew(() =>
             {
                 while (true)
                 {
-                    Thread.Sleep(1000 * 60 * 2);
+                    Thread.Sleep(1000 * 60 * 1);
+                    Show("检查登录...");
                     if (!AlipayHelper.IsLogin())
                     {
                         webBrowser1.Navigate("https://auth.alipay.com/login/index.htm");
@@ -43,7 +44,7 @@ namespace FuckTheAlipayContract
 
         public void HostStar()
         {
-            var config = new HttpSelfHostConfiguration("http://localhost:8999");
+            var config = new HttpSelfHostConfiguration("http://127.0.0.1:8999");
             config.Routes.MapHttpRoute(
                 "API Default", "api/{controller}/{action}/{s}",
                 new { id = RouteParameter.Optional });
@@ -54,19 +55,31 @@ namespace FuckTheAlipayContract
 
         private void Form1_Load(object sender, EventArgs e)
         {
+            Thread.Sleep(1000 * 5);
             webBrowser1.Navigate("https://auth.alipay.com/login/index.htm");
         }
 
         private void btnquery_Click(object sender, EventArgs e)
         {
-            var tradeno = txtNumber.Text;
-            if (string.IsNullOrEmpty(tradeno))
+            var type = Convert.ToInt32(labType.Tag) == 0 ? "交易号" : "备注";
+            var str = txtNumber.Text;
+            if (string.IsNullOrEmpty(str))
             {
-                MessageBox.Show("交易号不能为空");
+                MessageBox.Show($"{type}不能为空!");
                 return;
             }
             var result = new QueryResult();
-            if (AlipayHelper.QueryNo(tradeno, out result))
+            var IsOK = false;
+            switch (type)
+            {
+                case "交易号":
+                    IsOK = AlipayHelper.QueryNo(str, out result);
+                    break;
+                case "备注":
+                    IsOK = AlipayHelper.QueryRemark(str, out result);
+                    break;
+            }
+            if (IsOK)
             {
                 var text = string.Format("{0}|{1}|{2}|{3}", result.TradeNo, result.Remark, result.Amount1, result.PaymentOn) + "\r\n";
                 richTextBox1.AppendText(text);
@@ -81,22 +94,52 @@ namespace FuckTheAlipayContract
 
         private void webBrowser1_DocumentCompleted(object sender, WebBrowserDocumentCompletedEventArgs e)
         {
-            var pwd = textPwd.Text;
-            if (string.IsNullOrEmpty(pwd))
+            //UserName = txtUserName.Text;
+            PassWord = textPwd.Text;
+            if (string.IsNullOrEmpty(PassWord))
             {
                 return;
             }
-            var url = e.Url.ToString();
-            if (Regex.IsMatch(url, "https://auth.alipay.com/login/index.htm"))
+            if (Regex.IsMatch(e.Url.ToString(), "https://auth.alipay.com/login/index.htm"))
             {
-                Thread.Sleep(1000 * 10);
-                //var unameinput = webBrowser1.Document.GetElementById("J-input-user");
-                //unameinput.SetAttribute("value", uname);
-                var pwdinput = webBrowser1.Document.GetElementById("password_rsainput");
-                pwdinput.SetAttribute("value", pwd);
-                var subbtn = webBrowser1.Document.GetElementById("J-login-btn");
-                subbtn.InvokeMember("click");
+                webBrowser1.Invoke(new Action(() =>
+                {
+                    //var unameinput = webBrowser1.Document.GetElementById("J-input-user");
+                    //unameinput.SetAttribute("autocomplete", "on");
+                    //unameinput.SetAttribute("value", UserName);
+                    var pwdinput = webBrowser1.Document.GetElementById("password_rsainput");
+                    pwdinput.SetAttribute("value", PassWord);
+                    var subbtn = webBrowser1.Document.GetElementById("J-login-btn");
+                    subbtn.InvokeMember("click");
+                    Thread.Sleep(1000 * 5);
+                    AlipayHelper.IsLogin();
+                }));
+
             }
+
+        }
+
+        public void Show(string msg)
+        {
+            statusStrip1.Invoke(new Action<string>(x =>
+            {
+                toolStripStatusLabel1.Text = $"{x},上次检查时间:[{DateTime.Now.ToString("MM-dd HH:mm:ss")}]";
+            }), msg);
+
+        }
+
+        private void radioButton1_CheckedChanged(object sender, EventArgs e)
+        {
+            if (!((RadioButton)sender).Checked)
+                return;
+            labType.Tag = 0;
+        }
+
+        private void radioButton2_CheckedChanged(object sender, EventArgs e)
+        {
+            if (!((RadioButton)sender).Checked)
+                return;
+            labType.Tag = 1;
         }
     }
 }

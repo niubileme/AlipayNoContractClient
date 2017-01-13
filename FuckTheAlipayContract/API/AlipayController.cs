@@ -27,16 +27,16 @@ namespace FuckTheAlipayContract.API
         }
 
         [HttpGet]
-        public QueryResult QueryInfo(string s)
+        public QueryResult QueryRemark(string s)
         {
             var result = new QueryResult();
             if (string.IsNullOrEmpty(s))
             {
                 result.IsSuccess = false;
-                result.Info = "交易号为空！";
+                result.Info = "备注为空！";
                 return result;
             }
-            AlipayHelper.QueryInfo(s, out result);
+            AlipayHelper.QueryRemark(s, out result);
             return result;
         }
 

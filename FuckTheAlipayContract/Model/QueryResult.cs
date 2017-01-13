@@ -18,7 +18,7 @@ namespace FuckTheAlipayContract.Model
         /// </summary>
         public string Remark { get; set; }
         /// <summary>
-        /// 单价
+        /// 实付金额
         /// </summary>
         public string Amount1 { get; set; }
         /// <summary>
@@ -26,7 +26,7 @@ namespace FuckTheAlipayContract.Model
         /// </summary>
         public string PostalFee { get; set; }
         /// <summary>
-        /// 应付金额
+        /// 总额
         /// </summary>
         public string Amount2 { get; set; }
         /// <summary>

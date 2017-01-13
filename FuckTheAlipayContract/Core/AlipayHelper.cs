@@ -15,20 +15,14 @@ namespace FuckTheAlipayContract.Core
     {
         public static WebBrowser Web;
         public static CookieContainer cookies;
-        public static void Init(WebBrowser WebBrowser)
+        public static Action<string> Log;
+        public static void Init(WebBrowser WebBrowser, Action<string> log)
         {
             Web = WebBrowser;
             cookies = new CookieContainer();
+            Log = log;
         }
 
-        public static void Refresh()
-        {
-            Web.Invoke(new Action(() =>
-            {
-                Web.Navigate("https://my.alipay.com?k=" + DateTime.Now.Ticks);
-                Console.WriteLine(DateTime.Now + "刷新...");
-            }));
-        }
 
         private static void GetCookies()
         {
@@ -52,22 +46,19 @@ namespace FuckTheAlipayContract.Core
             }
         }
 
-        public static void KeepLogin()
+        public static void Refresh()
         {
-            if (!IsLogin())
+            Web.Invoke(new Action(() =>
             {
-                //尝试登陆
-                Web.Invoke(new Action(() =>
-                {
-                    Web.Navigate("https://auth.alipay.com/login/index.htm");
-                    Console.WriteLine(DateTime.Now + "刷新...");
-                }));
-            }
+                Web.Refresh(WebBrowserRefreshOption.Completely);
+            }));
         }
+
         public static bool IsLogin()
         {
             var islogin = false;
-            var url = "https://my.alipay.com/";
+            GetCookies();
+            var url = "https://my.alipay.com/portal/i.htm";
             try
             {
                 var code = "";
@@ -79,18 +70,15 @@ namespace FuckTheAlipayContract.Core
                 }).GetHtml();
                 code = result.Html;
                 if (Regex.IsMatch(code, "登录.+?支付宝"))
-                {
                     islogin = false;
-                }
                 if (Regex.IsMatch(code, "我的支付宝.+?支付宝"))
-                {
                     islogin = true;
-                }
             }
             catch (Exception)
             {
                 islogin = false;
             }
+            Log.Invoke(islogin ? "已登录" : "未登录");
             return islogin;
         }
 
@@ -103,7 +91,6 @@ namespace FuckTheAlipayContract.Core
             result = LocalCache.Cache.QueryTradeNo(no);
             if (result != null)
                 return true;
-            GetCookies();
             if (!IsLogin())
             {
                 result.Info = "没有登陆";
@@ -116,6 +103,8 @@ namespace FuckTheAlipayContract.Core
                 return false;
             }
             result = Format(html);
+            if (result.IsSuccess == false)
+                return false;
             LocalCache.Cache.Add(result.TradeNo, result);
             return result.IsSuccess;
         }
@@ -123,26 +112,38 @@ namespace FuckTheAlipayContract.Core
         /// <summary>
         /// 根据备注查询
         /// </summary>
-        public static bool QueryInfo(string remark, out QueryResult result)
+        public static bool QueryRemark(string remark, out QueryResult result)
         {
             result = LocalCache.Cache.QueryRemark(remark);
             if (result != null)
                 return true;
-            GetCookies();
             if (!IsLogin())
             {
                 result.Info = "没有登陆";
                 return false;
             }
-            var html = GetTradeNoHtml(remark);
-            if (string.IsNullOrEmpty(html))
+            var dic = GetTradeNoListHtml(remark);
+            if (dic == null)
             {
                 result.Info = "查询失败";
                 return false;
             }
-            result = Format(html);
-            LocalCache.Cache.Add(result.TradeNo, result);
-            return result.IsSuccess;
+            //匹配到tradeNo
+            var no = "";
+            foreach (var item in dic)
+            {
+                if (item.Value == remark)
+                {
+                    no = item.Key;
+                    break;
+                }
+            }
+            if (string.IsNullOrEmpty(no))
+            {
+                result.Info = "没有找到备注信息";
+                return false;
+            }
+            return QueryNo(no, out result);
         }
 
         private static string GetTradeNoHtml(string no)
@@ -150,7 +151,7 @@ namespace FuckTheAlipayContract.Core
             var code = "";
             try
             {
-                var url = string.Format("https://shenghuo.alipay.com/send/queryTransferDetail.htm?tradeNo={0}", no);
+                var url = $"https://shenghuo.alipay.com/send/queryTransferDetail.htm?tradeNo={no}";
                 var result = new HttpHelper(new HttpItem()
                 {
                     URL = url,
@@ -174,23 +175,24 @@ namespace FuckTheAlipayContract.Core
                 if (Regex.IsMatch(html, "暂时无法查询交易详情"))
                 {
                     r.IsSuccess = false;
-                    r.Info = "交易号不正确";
+                    r.Info = "交易号不存在，请确保交易号正确！";
                     return r;
                 }
                 var tradelist = Regex.Match(html, "<div class=\"p-trade-list\">([\\s\\S]*?)</div>").Groups[1].Value;
-                var mc = Regex.Match(tradelist, "<td class=\"name\">[\\s\\S]*?<ul>[\\s\\S]*?<li>(.+?)</li>[\\s\\S]*?<li.+?>交易号(.+?)</li>[\\s\\S]*?<td class=\"amount\">(.+?)</td>[\\s\\S]*?<td class=\"postalfee\">(.+?)</td>[\\s\\S]*?<td class=\"amount\">(.+?)</td>");
-                var tradeNo = mc.Groups[2].Value.Trim();
-                var remark = mc.Groups[1].Value.Trim();
-                var amount1 = mc.Groups[3].Value;
+                var mc = Regex.Match(tradelist, "<td class=\"name\">[\\s\\S]*?<ul>[\\s\\S]*?<li>(.+?)</li>[\\s\\S]*?<li.+?>交易号(.+?)</li>[\\s\\S]*?<td class=\"price\">(.+?)</td>[\\s\\S]*?<td class=\"postalfee\">(.+?)</td>[\\s\\S]*?<td class=\"amount\">(.+?)</td>");
+                var tradeNo = mc.Groups[2].Value.Trim();//交易号
+                var remark = mc.Groups[1].Value.Trim();//备注
+                var amount1 = mc.Groups[3].Value;//实付金额
                 var postalFee = mc.Groups[4].Value;
-                postalFee = postalFee.Substring(1, postalFee.Length - 1);
+                postalFee = postalFee.Substring(1, postalFee.Length - 1);//服务费 去掉+
                 var amount2 = mc.Groups[5].Value;
+                amount2 = amount2.Substring(1, amount2.Length - 1);//总额 去掉=
 
                 var tradeslips = Regex.Match(html, "<div class=\".+?p-trade-slips\">([\\s\\S]*?)</div>").Groups[1].Value;
                 var mc2 = Regex.Matches(tradeslips, "<td class=\"time\">([\\s\\S]*?)</td>");
-                var createOn = Convert.ToDateTime(mc2[0].Groups[1].Value.Trim());
-                var paymentOn = Convert.ToDateTime(mc2[1].Groups[1].Value.Trim());
-                var endOn = Convert.ToDateTime(mc2[2].Groups[1].Value.Trim());
+                var createOn = Convert.ToDateTime(mc2[0].Groups[1].Value.Trim());//创建时间
+                var paymentOn = Convert.ToDateTime(mc2[1].Groups[1].Value.Trim());//付款时间
+                var endOn = Convert.ToDateTime(mc2[2].Groups[1].Value.Trim());//结束时间
 
                 r.IsSuccess = true;
                 r.TradeNo = tradeNo;
@@ -209,6 +211,38 @@ namespace FuckTheAlipayContract.Core
                 r.IsSuccess = false;
                 r.Info = "获取交易记录异常";
                 return r;
+            }
+        }
+
+        private static Dictionary<string, string> GetTradeNoListHtml(string remark)
+        {
+
+            var dic = new Dictionary<string, string>();
+            try
+            {
+                var url = "https://lab.alipay.com/consume/record/items.htm";
+                var result = new HttpHelper(new HttpItem()
+                {
+                    URL = url,
+                    Allowautoredirect = true,
+                    CookieContainer = cookies
+                }).GetHtml();
+                var html = result.Html;
+                if (string.IsNullOrEmpty(html))
+                    return null;
+                //匹配列表
+                var mc = Regex.Matches(html, "class=\"consumeBizNo\">([\\s\\S]*?)<[\\s\\S]*?class=\"name emoji-li\".*?>([\\s\\S]*?)<");
+                foreach (Match item in mc)
+                {
+                    var no = item.Groups[1].Value.Replace("\r\n", "").Replace("\t", "").Replace(" ", "");
+                    var info = item.Groups[2].Value.Replace("\r\n", "").Replace("\t", "").Replace(" ", "");
+                    dic.Add(no, info);
+                }
+                return dic;
+            }
+            catch (Exception)
+            {
+                return null;
             }
         }
 
