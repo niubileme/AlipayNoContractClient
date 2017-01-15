@@ -60,7 +60,7 @@ namespace FuckTheAlipayContract
         private void btnquery_Click(object sender, EventArgs e)
         {
             var type = Convert.ToInt32(btnquery.Tag) == 0 ? "交易号" : "备注";
-            var str = txtNumber.Text;
+            var str = txtNumber.Text.Trim();
             if (string.IsNullOrEmpty(str))
             {
                 MessageBox.Show($"{type}不能为空!");

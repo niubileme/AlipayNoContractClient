@@ -91,6 +91,7 @@ namespace FuckTheAlipayContract.Core
             result = LocalCache.Cache.QueryTradeNo(no);
             if (result != null)
                 return true;
+            result = new QueryResult();
             if (!IsLogin())
             {
                 result.Info = "没有登陆";
@@ -117,6 +118,7 @@ namespace FuckTheAlipayContract.Core
             result = LocalCache.Cache.QueryRemark(remark);
             if (result != null)
                 return true;
+            result = new QueryResult();
             if (!IsLogin())
             {
                 result.Info = "没有登陆";
@@ -234,8 +236,8 @@ namespace FuckTheAlipayContract.Core
                 var mc = Regex.Matches(html, "class=\"consumeBizNo\">([\\s\\S]*?)<[\\s\\S]*?class=\"name emoji-li\".*?>([\\s\\S]*?)<");
                 foreach (Match item in mc)
                 {
-                    var no = item.Groups[1].Value.Replace("\r\n", "").Replace("\t", "").Replace(" ", "");
-                    var info = item.Groups[2].Value.Replace("\r\n", "").Replace("\t", "").Replace(" ", "");
+                    var no = item.Groups[1].Value.Replace("\r\n", "").Replace("\t", "").Replace(" ", "").Trim();
+                    var info = item.Groups[2].Value.Replace("\r\n", "").Replace("\t", "").Replace(" ", "").Trim();
                     dic.Add(no, info);
                 }
                 return dic;
