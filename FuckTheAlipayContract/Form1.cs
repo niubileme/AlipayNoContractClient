@@ -23,14 +23,12 @@ namespace FuckTheAlipayContract
         public Form1()
         {
             InitializeComponent();
-            richTextBox1.AppendText("交易号|备注|实付金额|付款时间" + "\r\n");
             AlipayHelper.Init(webBrowser1, Show);
-            //开启后台线程 保持登陆
             Task.Factory.StartNew(() =>
             {
                 while (true)
                 {
-                    Thread.Sleep(1000 * 60 * 1);
+                    Thread.Sleep(1000 * 60 * 2);
                     Show("检查登录...");
                     if (!AlipayHelper.IsLogin())
                     {
@@ -61,7 +59,7 @@ namespace FuckTheAlipayContract
 
         private void btnquery_Click(object sender, EventArgs e)
         {
-            var type = Convert.ToInt32(labType.Tag) == 0 ? "交易号" : "备注";
+            var type = Convert.ToInt32(btnquery.Tag) == 0 ? "交易号" : "备注";
             var str = txtNumber.Text;
             if (string.IsNullOrEmpty(str))
             {
@@ -81,7 +79,7 @@ namespace FuckTheAlipayContract
             }
             if (IsOK)
             {
-                var text = string.Format("{0}|{1}|{2}|{3}", result.TradeNo, result.Remark, result.Amount1, result.PaymentOn) + "\r\n";
+                var text = $"[交易号]{result.TradeNo}[备注信息]{result.Remark}[实付金额]{result.Amount1}[付款时间]{result.PaymentOn}\r\n";
                 richTextBox1.AppendText(text);
             }
             else
@@ -102,29 +100,34 @@ namespace FuckTheAlipayContract
             }
             if (Regex.IsMatch(e.Url.ToString(), "https://auth.alipay.com/login/index.htm"))
             {
-                webBrowser1.Invoke(new Action(() =>
+                Task.Factory.StartNew(() =>
                 {
-                    //var unameinput = webBrowser1.Document.GetElementById("J-input-user");
-                    //unameinput.SetAttribute("autocomplete", "on");
-                    //unameinput.SetAttribute("value", UserName);
-                    var pwdinput = webBrowser1.Document.GetElementById("password_rsainput");
-                    pwdinput.SetAttribute("value", PassWord);
-                    var subbtn = webBrowser1.Document.GetElementById("J-login-btn");
-                    subbtn.InvokeMember("click");
-                    Thread.Sleep(1000 * 5);
-                    AlipayHelper.IsLogin();
-                }));
-
+                    webBrowser1.Invoke(new Action(() =>
+                    {
+                        //var unameinput = webBrowser1.Document.GetElementById("J-input-user");
+                        //unameinput.SetAttribute("autocomplete", "on");
+                        //unameinput.SetAttribute("value", UserName);
+                        var pwdinput = webBrowser1.Document.GetElementById("password_rsainput");
+                        pwdinput.SetAttribute("value", PassWord);
+                        var subbtn = webBrowser1.Document.GetElementById("J-login-btn");
+                        subbtn.InvokeMember("click");
+                        Thread.Sleep(1000 * 5);
+                        AlipayHelper.IsLogin();
+                    }));
+                });
             }
 
         }
 
         public void Show(string msg)
         {
-            statusStrip1.Invoke(new Action<string>(x =>
+            Task.Factory.StartNew(() =>
             {
-                toolStripStatusLabel1.Text = $"{x},上次检查时间:[{DateTime.Now.ToString("MM-dd HH:mm:ss")}]";
-            }), msg);
+                statusStrip1.Invoke(new Action<string>(x =>
+                {
+                    toolStripStatusLabel1.Text = $"{x},上次检查时间[{DateTime.Now.ToString("HH:mm:ss")}]";
+                }), msg);
+            });
 
         }
 
@@ -132,14 +135,14 @@ namespace FuckTheAlipayContract
         {
             if (!((RadioButton)sender).Checked)
                 return;
-            labType.Tag = 0;
+            btnquery.Tag = 0;
         }
 
         private void radioButton2_CheckedChanged(object sender, EventArgs e)
         {
             if (!((RadioButton)sender).Checked)
                 return;
-            labType.Tag = 1;
+            btnquery.Tag = 1;
         }
     }
 }
