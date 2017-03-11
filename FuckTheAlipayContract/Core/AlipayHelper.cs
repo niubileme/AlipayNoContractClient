@@ -181,7 +181,7 @@ namespace FuckTheAlipayContract.Core
                     return r;
                 }
                 var tradelist = Regex.Match(html, "<div class=\"p-trade-list\">([\\s\\S]*?)</div>").Groups[1].Value;
-                var mc = Regex.Match(tradelist, "<td class=\"name\">[\\s\\S]*?<ul>[\\s\\S]*?<li>(.+?)</li>[\\s\\S]*?<li.+?>交易号(.+?)</li>[\\s\\S]*?<td class=\".*?\">(.+?)</td>[\\s\\S]*?<td class=\"postalfee\">(.+?)</td>[\\s\\S]*?<td class=\"amount\">(.+?)</td>");
+                var mc = Regex.Match(tradelist, "<td class=\"name\">[\\s\\S]*?<ul>[\\s\\S]*?<li>(.+?)</li>[\\s\\S]*?<li.+?>交易号(.+?)</li>[\\s\\S]*?<td class=\".+?\">(.+?)</td>[\\s\\S]*?<td class=\".+?\">(.+?)</td>[\\s\\S]*?<td class=\".+?\">(.+?)</td>");
                 var tradeNo = mc.Groups[2].Value.Trim();//交易号
                 var remark = mc.Groups[1].Value.Trim();//备注
                 var amount1 = mc.Groups[3].Value;//实付金额
@@ -236,13 +236,20 @@ namespace FuckTheAlipayContract.Core
                 var mc = Regex.Matches(html, "class=\"consumeBizNo\">([\\s\\S]*?)<[\\s\\S]*?class=\"name emoji-li\".*?>([\\s\\S]*?)<");
                 foreach (Match item in mc)
                 {
-                    var no = item.Groups[1].Value.Replace("\r\n", "").Replace("\t", "").Replace(" ", "").Trim();
-                    var info = item.Groups[2].Value.Replace("\r\n", "").Replace("\t", "").Replace(" ", "").Trim();
-                    dic.Add(no, info);
+                    try
+                    {
+                        var no = item.Groups[1].Value.Replace("\r\n", "").Replace("\t", "").Replace(" ", "").Trim();
+                        var info = item.Groups[2].Value.Replace("\r\n", "").Replace("\t", "").Replace(" ", "").Trim();
+                        dic.Add(no, info);
+                    }
+                    catch (Exception ex)
+                    {
+                        
+                    }
                 }
                 return dic;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
                 return null;
             }
