@@ -319,7 +319,6 @@
             this.textPwd.PasswordChar = '*';
             this.textPwd.Size = new System.Drawing.Size(256, 21);
             this.textPwd.TabIndex = 1;
-            this.textPwd.Text = "6024oppzk";
             // 
             // label1
             // 
@@ -352,7 +351,7 @@
             this.Controls.Add(this.splitContainer1);
             this.Margin = new System.Windows.Forms.Padding(2);
             this.Name = "Form1";
-            this.Text = " Fuck The Contract For Alipay  →_→";
+            this.Text = "  →_→ Fuck The Contract For Alipay ";
             this.Load += new System.EventHandler(this.Form1_Load);
             this.splitContainer1.Panel1.ResumeLayout(false);
             this.splitContainer1.Panel1.PerformLayout();
