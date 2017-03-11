@@ -31,6 +31,7 @@ namespace FuckTheAlipayContract
                     Thread.Sleep(1000 * 60 * 2);
                     Show("检查登录...");
                     AlipayHelper.Refresh();
+                    Thread.Sleep(1000 * 3);
                     if (!AlipayHelper.IsLogin())
                     {
                         webBrowser1.Navigate("https://auth.alipay.com/login/index.htm");
