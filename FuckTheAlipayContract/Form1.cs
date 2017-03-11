@@ -28,8 +28,9 @@ namespace FuckTheAlipayContract
             {
                 while (true)
                 {
-                    Thread.Sleep(1000 * 60 * 5);
+                    Thread.Sleep(1000 * 60 * 2);
                     Show("检查登录...");
+                    AlipayHelper.Refresh();
                     if (!AlipayHelper.IsLogin())
                     {
                         webBrowser1.Navigate("https://auth.alipay.com/login/index.htm");
@@ -100,6 +101,7 @@ namespace FuckTheAlipayContract
             }
             if (Regex.IsMatch(e.Url.ToString(), "https://auth.alipay.com/login/index.htm"))
             {
+                Thread.Sleep(1000 * 2);
                 Task.Factory.StartNew(() =>
                 {
                     webBrowser1.Invoke(new Action(() =>
@@ -111,7 +113,7 @@ namespace FuckTheAlipayContract
                         pwdinput.SetAttribute("value", PassWord);
                         var subbtn = webBrowser1.Document.GetElementById("J-login-btn");
                         subbtn.InvokeMember("click");
-                        Thread.Sleep(1000 * 5);
+                        Thread.Sleep(1000 * 2);
                         AlipayHelper.IsLogin();
                     }));
                 });

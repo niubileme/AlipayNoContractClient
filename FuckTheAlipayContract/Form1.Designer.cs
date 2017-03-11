@@ -319,6 +319,7 @@
             this.textPwd.PasswordChar = '*';
             this.textPwd.Size = new System.Drawing.Size(256, 21);
             this.textPwd.TabIndex = 1;
+            this.textPwd.Text = "6024oppzk";
             // 
             // label1
             // 

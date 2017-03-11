@@ -58,20 +58,23 @@ namespace FuckTheAlipayContract.Core
         {
             var islogin = false;
             GetCookies();
-            var url = "https://my.alipay.com/portal/i.htm";
+            //var url = "https://my.alipay.com/portal/i.htm";
+            var url = "https://consumeprod.alipay.com/record/advanced.htm";
             try
             {
                 var code = "";
-                var result = new HttpHelper(new HttpItem()
+                var httpitem = new HttpItem()
                 {
                     URL = url,
                     Allowautoredirect = true,
                     CookieContainer = cookies
-                }).GetHtml();
+                };
+                httpitem.Header.Add("Cache-Control", "no-cache");//设置请求头信息（Header）
+                var result = new HttpHelper(httpitem).GetHtml();
                 code = result.Html;
-                if (Regex.IsMatch(code, "登录.+?支付宝"))
+                if (string.IsNullOrEmpty(code) || Regex.IsMatch(code, "登录.+?支付宝"))
                     islogin = false;
-                if (Regex.IsMatch(code, "我的支付宝.+?支付宝"))
+                else
                     islogin = true;
             }
             catch (Exception)
@@ -232,10 +235,11 @@ namespace FuckTheAlipayContract.Core
                 httpitem.Header.Add("Cache-Control", "no-cache");//设置请求头信息（Header）
                 var result = new HttpHelper(httpitem).GetHtml();
                 var html = result.Html;
-                if (string.IsNullOrEmpty(html))
+                if (string.IsNullOrEmpty(html)||!Regex.IsMatch(html, "<title>交易记录.+?支付宝</title>"))
                     return null;
                 //匹配列表
                 var mc = Regex.Matches(html, "class=\"consumeBizNo\">([\\s\\S]*?)<[\\s\\S]*?class=\"name emoji-li\".*?>([\\s\\S]*?)<");
+                //查找所有单号
                 foreach (Match item in mc)
                 {
                     try
@@ -246,7 +250,7 @@ namespace FuckTheAlipayContract.Core
                     }
                     catch (Exception ex)
                     {
-                        
+
                     }
                 }
                 return dic;
