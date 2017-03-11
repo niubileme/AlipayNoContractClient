@@ -94,13 +94,13 @@ namespace FuckTheAlipayContract.Core
             result = new QueryResult();
             if (!IsLogin())
             {
-                result.Info = "没有登陆";
+                result.Info = "10001 查询失败";//没有登陆
                 return false;
             }
             var html = GetTradeNoHtml(no);
             if (string.IsNullOrEmpty(html))
             {
-                result.Info = "查询失败";
+                result.Info = "10002 查询失败";//没有获取到html
                 return false;
             }
             result = Format(html);
@@ -121,13 +121,13 @@ namespace FuckTheAlipayContract.Core
             result = new QueryResult();
             if (!IsLogin())
             {
-                result.Info = "没有登陆";
+                result.Info = "10001 查询失败";//没有登陆
                 return false;
             }
             var dic = GetTradeNoListHtml(remark);
             if (dic == null)
             {
-                result.Info = "查询失败";
+                result.Info = "10002 查询失败";//没有获取到html
                 return false;
             }
             //匹配到tradeNo
@@ -223,12 +223,14 @@ namespace FuckTheAlipayContract.Core
             try
             {
                 var url = "https://lab.alipay.com/consume/record/items.htm";
-                var result = new HttpHelper(new HttpItem()
+                var httpitem = new HttpItem()
                 {
                     URL = url,
                     Allowautoredirect = true,
                     CookieContainer = cookies
-                }).GetHtml();
+                };
+                httpitem.Header.Add("Cache-Control", "no-cache");//设置请求头信息（Header）
+                var result = new HttpHelper(httpitem).GetHtml();
                 var html = result.Html;
                 if (string.IsNullOrEmpty(html))
                     return null;
