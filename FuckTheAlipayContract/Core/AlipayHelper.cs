@@ -181,7 +181,7 @@ namespace FuckTheAlipayContract.Core
                     return r;
                 }
                 var tradelist = Regex.Match(html, "<div class=\"p-trade-list\">([\\s\\S]*?)</div>").Groups[1].Value;
-                var mc = Regex.Match(tradelist, "<td class=\"name\">[\\s\\S]*?<ul>[\\s\\S]*?<li>(.+?)</li>[\\s\\S]*?<li.+?>交易号(.+?)</li>[\\s\\S]*?<td class=\"price\">(.+?)</td>[\\s\\S]*?<td class=\"postalfee\">(.+?)</td>[\\s\\S]*?<td class=\"amount\">(.+?)</td>");
+                var mc = Regex.Match(tradelist, "<td class=\"name\">[\\s\\S]*?<ul>[\\s\\S]*?<li>(.+?)</li>[\\s\\S]*?<li.+?>交易号(.+?)</li>[\\s\\S]*?<td class=\".*?\">(.+?)</td>[\\s\\S]*?<td class=\"postalfee\">(.+?)</td>[\\s\\S]*?<td class=\"amount\">(.+?)</td>");
                 var tradeNo = mc.Groups[2].Value.Trim();//交易号
                 var remark = mc.Groups[1].Value.Trim();//备注
                 var amount1 = mc.Groups[3].Value;//实付金额

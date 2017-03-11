@@ -28,7 +28,7 @@ namespace FuckTheAlipayContract
             {
                 while (true)
                 {
-                    Thread.Sleep(1000 * 60 * 2);
+                    Thread.Sleep(1000 * 60 * 5);
                     Show("检查登录...");
                     if (!AlipayHelper.IsLogin())
                     {
